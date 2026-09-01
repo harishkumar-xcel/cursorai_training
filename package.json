@@ -1,5 +1,5 @@
 {
-	"name": "next",
+	"name": "quizmaker",
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
@@ -7,6 +7,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "eslint .",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
 		"upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
@@ -34,6 +36,8 @@
 		"shadcn": "^4.16.1",
 		"tailwindcss": "^4",
 		"typescript": "^5",
+		"vite-tsconfig-paths": "^5.1.4",
+		"vitest": "^3.2.4",
 		"wrangler": "^4.118.0"
 	}
 }
