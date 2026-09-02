@@ -1,3 +1,4 @@
 # Load .env.development* files when running `wrangler dev`
+# Also loaded by next.config.ts for `npm run dev`
 NEXTJS_ENV=development
 SESSION_SECRET=
