@@ -3,11 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LoginForm } from "@/components/login-form";
+import { redirectAfterAuth } from "@/lib/auth/client-redirect";
 
-const push = vi.fn();
-
-vi.mock("next/navigation", () => ({
-	useRouter: () => ({ push }),
+vi.mock("@/lib/auth/client-redirect", () => ({
+	redirectAfterAuth: vi.fn(),
 }));
 
 describe("LoginForm", () => {
@@ -60,6 +59,7 @@ describe("LoginForm", () => {
 			expect(fetch).toHaveBeenCalledWith("/api/auth/login", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
+				credentials: "include",
 				body: JSON.stringify({
 					email: "jane@school.edu",
 					password: "SecurePass123",
@@ -67,6 +67,6 @@ describe("LoginForm", () => {
 			});
 		});
 
-		expect(push).toHaveBeenCalledWith("/mcq");
+		expect(redirectAfterAuth).toHaveBeenCalled();
 	});
 });

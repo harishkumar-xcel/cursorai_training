@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -20,10 +19,10 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { redirectAfterAuth } from "@/lib/auth/client-redirect";
 import { cn } from "@/lib/utils";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-	const router = useRouter();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
@@ -38,6 +37,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 			const response = await fetch("/api/auth/login", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
+				credentials: "include",
 				body: JSON.stringify({ email, password }),
 			});
 
@@ -48,7 +48,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 				return;
 			}
 
-			router.push("/mcq");
+			redirectAfterAuth();
 		} catch {
 			setError("Login failed");
 		} finally {

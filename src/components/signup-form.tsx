@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -20,9 +19,9 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { redirectAfterAuth } from "@/lib/auth/client-redirect";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
-	const router = useRouter();
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [email, setEmail] = useState("");
@@ -46,6 +45,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 			const response = await fetch("/api/auth/register", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
+				credentials: "include",
 				body: JSON.stringify({
 					firstName,
 					lastName,
@@ -61,7 +61,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 				return;
 			}
 
-			router.push("/mcq");
+			redirectAfterAuth();
 		} catch {
 			setError("Registration failed");
 		} finally {

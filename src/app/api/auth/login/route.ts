@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { verifyPassword } from "@/lib/auth/password";
 import { setSessionCookie } from "@/lib/auth/session-cookie";
+import { handleAuthRouteError } from "@/lib/api/handle-auth-route-error";
 import { getUserByEmail } from "@/lib/services/user-service";
 import { loginSchema } from "@/lib/validations/auth";
 
@@ -25,28 +26,32 @@ export async function POST(request: NextRequest) {
 		);
 	}
 
-	const user = await getUserByEmail(parsed.data.email);
+	try {
+		const user = await getUserByEmail(parsed.data.email);
 
-	if (!user) {
-		return NextResponse.json({ error: INVALID_CREDENTIALS_MESSAGE }, { status: 401 });
+		if (!user) {
+			return NextResponse.json({ error: INVALID_CREDENTIALS_MESSAGE }, { status: 401 });
+		}
+
+		const passwordMatches = await verifyPassword(parsed.data.password, user.passwordHash);
+
+		if (!passwordMatches) {
+			return NextResponse.json({ error: INVALID_CREDENTIALS_MESSAGE }, { status: 401 });
+		}
+
+		await setSessionCookie(user.id, user.email);
+
+		return NextResponse.json({
+			user: {
+				id: user.id,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				email: user.email,
+				createdAt: user.createdAt,
+				updatedAt: user.updatedAt,
+			},
+		});
+	} catch (error) {
+		return handleAuthRouteError(error);
 	}
-
-	const passwordMatches = await verifyPassword(parsed.data.password, user.passwordHash);
-
-	if (!passwordMatches) {
-		return NextResponse.json({ error: INVALID_CREDENTIALS_MESSAGE }, { status: 401 });
-	}
-
-	await setSessionCookie(user.id, user.email);
-
-	return NextResponse.json({
-		user: {
-			id: user.id,
-			firstName: user.firstName,
-			lastName: user.lastName,
-			email: user.email,
-			createdAt: user.createdAt,
-			updatedAt: user.updatedAt,
-		},
-	});
 }

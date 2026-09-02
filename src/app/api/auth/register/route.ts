@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { setSessionCookie } from "@/lib/auth/session-cookie";
+import { handleAuthRouteError } from "@/lib/api/handle-auth-route-error";
 import { createUser, getUserByEmail } from "@/lib/services/user-service";
 import { registerSchema } from "@/lib/validations/auth";
 
@@ -22,18 +23,22 @@ export async function POST(request: NextRequest) {
 		);
 	}
 
-	const existingUser = await getUserByEmail(parsed.data.email);
+	try {
+		const existingUser = await getUserByEmail(parsed.data.email);
 
-	if (existingUser) {
-		return NextResponse.json(
-			{ error: "An account with this email already exists" },
-			{ status: 409 },
-		);
+		if (existingUser) {
+			return NextResponse.json(
+				{ error: "An account with this email already exists" },
+				{ status: 409 },
+			);
+		}
+
+		const user = await createUser(parsed.data);
+
+		await setSessionCookie(user.id, user.email);
+
+		return NextResponse.json({ user }, { status: 201 });
+	} catch (error) {
+		return handleAuthRouteError(error);
 	}
-
-	const user = await createUser(parsed.data);
-
-	await setSessionCookie(user.id, user.email);
-
-	return NextResponse.json({ user }, { status: 201 });
 }

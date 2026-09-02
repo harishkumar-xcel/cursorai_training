@@ -1,16 +1,8 @@
+import { getSessionSecret } from "@/lib/config/session-secret";
 import type { SessionPayload } from "@/lib/types/user";
+import { getSessionCookieSecure } from "@/lib/config/runtime";
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
-
-function getSessionSecret(): string {
-	const secret = process.env.SESSION_SECRET;
-
-	if (!secret) {
-		throw new Error("SESSION_SECRET is not configured");
-	}
-
-	return secret;
-}
 
 function encodeBase64Url(value: string): string {
 	return Buffer.from(value, "utf-8").toString("base64url");
@@ -102,7 +94,7 @@ export async function parseSessionToken(token: string): Promise<SessionPayload |
 export function getSessionCookieOptions() {
 	return {
 		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
+		secure: getSessionCookieSecure(),
 		sameSite: "lax" as const,
 		path: "/",
 		maxAge: SESSION_MAX_AGE_SECONDS,
