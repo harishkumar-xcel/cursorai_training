@@ -1,0 +1,17 @@
+---
+description: Pause for user approval and commit each PRD implementation phase before continuing
+alwaysApply: true
+---
+
+# Phased implementation workflow
+
+When implementing work defined in phases (for example in `ai-workspace/*_PRD.md`):
+
+1. **One phase at a time.** Implement only the current phase scope. Do not start the next phase in the same turn unless the user explicitly asks.
+2. **Verify before handoff.** Run `npm run test`, `npm run lint`, and `npm run build` for the phase scope and report the actual results.
+3. **Stop for approval.** Summarize what was delivered for the phase and ask the user to review. Do not commit or push until the user confirms the phase looks correct.
+4. **Commit after approval.** Create a focused commit for that phase only, with a message that names the phase and objective.
+5. **Push to the current branch.** After committing, push to the branch the user is working on (for example `MCQ-CRUD-V2`). Do not deploy or apply remote database migrations unless explicitly asked.
+6. **Then proceed.** Only start the next phase after the user approves moving on.
+
+If a phase was partially landed in an earlier commit, say so clearly, commit any remaining phase work separately, and push before continuing.
