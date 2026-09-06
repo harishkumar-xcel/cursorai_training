@@ -2,8 +2,12 @@ export function shouldRedirectToMcq(pathname: string, isAuthenticated: boolean):
 	return isAuthenticated && (pathname === "/login" || pathname === "/register");
 }
 
+export function isMcqRoute(pathname: string): boolean {
+	return pathname === "/mcq" || pathname.startsWith("/mcq/");
+}
+
 export function shouldRedirectToLogin(pathname: string, isAuthenticated: boolean): boolean {
-	return !isAuthenticated && pathname === "/mcq";
+	return !isAuthenticated && isMcqRoute(pathname);
 }
 
 export function getAuthRedirectPath(): string {

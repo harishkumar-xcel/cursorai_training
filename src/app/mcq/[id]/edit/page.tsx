@@ -1,11 +1,15 @@
 import { redirect } from "next/navigation";
 
-import { McqList } from "@/components/mcq-list";
+import { McqForm } from "@/components/mcq-form";
 import { McqPageHeader } from "@/components/mcq-page-header";
 import { getSessionPayloadFromCookies } from "@/lib/auth/session-cookie";
 import { getUserById } from "@/lib/services/user-service";
 
-export default async function McqPage() {
+type EditMcqPageProps = {
+	params: Promise<{ id: string }>;
+};
+
+export default async function EditMcqPage({ params }: EditMcqPageProps) {
 	const session = await getSessionPayloadFromCookies();
 
 	if (!session) {
@@ -18,13 +22,12 @@ export default async function McqPage() {
 		redirect("/login");
 	}
 
+	const { id } = await params;
+
 	return (
-		<div className="mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-6 p-6 md:p-10">
-			<McqPageHeader
-				title="Question bank"
-				description={`Welcome, ${user.firstName} ${user.lastName}`}
-			/>
-			<McqList />
+		<div className="mx-auto flex min-h-svh w-full max-w-3xl flex-col gap-6 p-6 md:p-10">
+			<McqPageHeader title="Edit question" />
+			<McqForm mcqId={id} />
 		</div>
 	);
 }

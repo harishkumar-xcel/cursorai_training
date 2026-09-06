@@ -12,8 +12,10 @@ describe("route guards", () => {
 		expect(shouldRedirectToMcq("/login", false)).toBe(false);
 	});
 
-	it("shouldRedirectToLogin returns true when no session on /mcq", () => {
+	it("shouldRedirectToLogin returns true when no session on /mcq routes", () => {
 		expect(shouldRedirectToLogin("/mcq", false)).toBe(true);
+		expect(shouldRedirectToLogin("/mcq/new", false)).toBe(true);
+		expect(shouldRedirectToLogin("/mcq/abc/edit", false)).toBe(true);
 		expect(shouldRedirectToLogin("/mcq", true)).toBe(false);
 	});
 
@@ -24,6 +26,10 @@ describe("route guards", () => {
 	describe("resolveAuthRedirect", () => {
 		it("redirects unauthenticated /mcq to /login", () => {
 			expect(resolveAuthRedirect("/mcq", false)).toBe("/login");
+		});
+
+		it("redirects unauthenticated /mcq subroutes to /login", () => {
+			expect(resolveAuthRedirect("/mcq/new", false)).toBe("/login");
 		});
 
 		it("allows authenticated /mcq", () => {
