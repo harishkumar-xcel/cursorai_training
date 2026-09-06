@@ -29,11 +29,14 @@
     },
     "types": [
       "./cloudflare-env.d.ts",
-      "node"
+      "node",
+      "vitest/globals",
+      "@testing-library/jest-dom"
     ]
   },
   "include": [
     "next-env.d.ts",
+    "vitest-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
