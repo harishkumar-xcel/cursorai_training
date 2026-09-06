@@ -271,6 +271,7 @@ export function McqForm({ mcqId }: McqFormProps) {
 							<Button
 								type="button"
 								variant="outline"
+								nativeButton={false}
 								render={<Link href="/mcq" />}
 								disabled={isSubmitting}
 							>

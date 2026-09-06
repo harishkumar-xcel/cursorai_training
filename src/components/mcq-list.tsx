@@ -110,7 +110,9 @@ export function McqList() {
 						? "No questions yet. Create your first multiple-choice question."
 						: `${mcqs.length} question${mcqs.length === 1 ? "" : "s"}`}
 				</p>
-				<Button render={<Link href="/mcq/new" />}>Create question</Button>
+				<Button nativeButton={false} render={<Link href="/mcq/new" />}>
+					Create question
+				</Button>
 			</div>
 
 			{error ? <p className="text-sm text-destructive">{error}</p> : null}

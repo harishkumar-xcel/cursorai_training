@@ -9,6 +9,11 @@ describe("middleware auth routing", () => {
 		expect(resolveAuthRedirect("/mcq", true)).toBeNull();
 	});
 
+	it("redirects unauthenticated request to /mcq subroutes to /login", () => {
+		expect(resolveAuthRedirect("/mcq/new", false)).toBe("/login");
+		expect(resolveAuthRedirect("/mcq/abc/preview", false)).toBe("/login");
+	});
+
 	it("redirects authenticated request to /login to /mcq", () => {
 		expect(resolveAuthRedirect("/login", true)).toBe("/mcq");
 	});

@@ -163,7 +163,12 @@ export function McqPreview({ mcqId }: McqPreviewProps) {
 					{error ? <FieldError>{error}</FieldError> : null}
 
 					<div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-						<Button type="button" variant="outline" render={<Link href="/mcq" />}>
+						<Button
+							type="button"
+							variant="outline"
+							nativeButton={false}
+							render={<Link href="/mcq" />}
+						>
 							Back to list
 						</Button>
 						{!result ? (
@@ -174,6 +179,7 @@ export function McqPreview({ mcqId }: McqPreviewProps) {
 							<Button
 								type="button"
 								variant="outline"
+								nativeButton={false}
 								render={<Link href={`/mcq/${mcqId}/edit`} />}
 							>
 								Edit question

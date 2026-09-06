@@ -47,4 +47,32 @@ describe("McqForm", () => {
 
 		expect(push).toHaveBeenCalledWith("/mcq");
 	});
+
+	it("loads an existing question for editing", async () => {
+		const fetchMock = vi.fn().mockResolvedValue({
+			ok: true,
+			json: async () => ({
+				mcq: {
+					name: "Photosynthesis",
+					question: "What gas do plants absorb?",
+					choices: [
+						{ choiceText: "Carbon dioxide", isCorrect: true },
+						{ choiceText: "Oxygen", isCorrect: false },
+					],
+				},
+			}),
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		render(<McqForm mcqId="mcq-1" />);
+
+		await waitFor(() => {
+			expect(screen.getByDisplayValue("Photosynthesis")).toBeInTheDocument();
+		});
+
+		expect(fetchMock).toHaveBeenCalledWith("/api/mcqs/mcq-1?includeAnswers=true", {
+			credentials: "include",
+		});
+		expect(screen.getByText("Edit question")).toBeInTheDocument();
+	});
 });
