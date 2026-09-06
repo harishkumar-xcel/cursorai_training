@@ -54,6 +54,17 @@ describe("/api/mcqs/[id]", () => {
 	});
 
 	describe("GET", () => {
+		it("returns 401 when not authenticated", async () => {
+			vi.mocked(sessionCookie.getSessionPayloadFromCookies).mockResolvedValue(null);
+
+			const response = await GET(
+				new NextRequest("http://localhost/api/mcqs/mcq-1"),
+				createContext(),
+			);
+
+			expect(response.status).toBe(401);
+		});
+
 		it("returns 404 when mcq is not found", async () => {
 			vi.mocked(mcqService.getMcqById).mockResolvedValue(null);
 
@@ -76,9 +87,51 @@ describe("/api/mcqs/[id]", () => {
 			expect(response.status).toBe(200);
 			expect(body.mcq.choices[0]).not.toHaveProperty("isCorrect");
 		});
+
+		it("returns mcq with answers when includeAnswers=true", async () => {
+			const response = await GET(
+				new NextRequest("http://localhost/api/mcqs/mcq-1?includeAnswers=true"),
+				createContext(),
+			);
+
+			const body = await response.json();
+
+			expect(response.status).toBe(200);
+			expect(body.mcq.choices[0]).toEqual({
+				id: "choice-1",
+				choiceText: "Carbon dioxide",
+				sortOrder: 0,
+				isCorrect: true,
+			});
+			expect(mcqService.getMcqById).toHaveBeenCalledWith("mcq-1", "user-1", {
+				includeAnswers: true,
+			});
+		});
 	});
 
 	describe("PUT", () => {
+		it("returns 401 when not authenticated", async () => {
+			vi.mocked(sessionCookie.getSessionPayloadFromCookies).mockResolvedValue(null);
+
+			const response = await PUT(
+				new NextRequest("http://localhost/api/mcqs/mcq-1", {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						name: "Updated",
+						question: "Updated question?",
+						choices: [
+							{ choiceText: "A", isCorrect: true },
+							{ choiceText: "B", isCorrect: false },
+						],
+					}),
+				}),
+				createContext(),
+			);
+
+			expect(response.status).toBe(401);
+		});
+
 		it("updates mcq for authenticated user", async () => {
 			const response = await PUT(
 				new NextRequest("http://localhost/api/mcqs/mcq-1", {
@@ -97,11 +150,71 @@ describe("/api/mcqs/[id]", () => {
 			);
 
 			expect(response.status).toBe(200);
-			expect(mcqService.updateMcq).toHaveBeenCalled();
+			expect(mcqService.updateMcq).toHaveBeenCalledWith("mcq-1", "user-1", {
+				name: "Updated",
+				question: "Updated question?",
+				choices: [
+					{ choiceText: "A", isCorrect: true },
+					{ choiceText: "B", isCorrect: false },
+				],
+			});
+		});
+
+		it("returns 400 for invalid body", async () => {
+			const response = await PUT(
+				new NextRequest("http://localhost/api/mcqs/mcq-1", {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						name: "",
+						question: "Updated question?",
+						choices: [
+							{ choiceText: "A", isCorrect: true },
+							{ choiceText: "B", isCorrect: false },
+						],
+					}),
+				}),
+				createContext(),
+			);
+
+			expect(response.status).toBe(400);
+		});
+
+		it("returns 404 when update fails", async () => {
+			vi.mocked(mcqService.updateMcq).mockRejectedValue(new Error("MCQ not found"));
+
+			const response = await PUT(
+				new NextRequest("http://localhost/api/mcqs/missing", {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						name: "Updated",
+						question: "Updated question?",
+						choices: [
+							{ choiceText: "A", isCorrect: true },
+							{ choiceText: "B", isCorrect: false },
+						],
+					}),
+				}),
+				createContext("missing"),
+			);
+
+			expect(response.status).toBe(404);
 		});
 	});
 
 	describe("DELETE", () => {
+		it("returns 401 when not authenticated", async () => {
+			vi.mocked(sessionCookie.getSessionPayloadFromCookies).mockResolvedValue(null);
+
+			const response = await DELETE(
+				new NextRequest("http://localhost/api/mcqs/mcq-1", { method: "DELETE" }),
+				createContext(),
+			);
+
+			expect(response.status).toBe(401);
+		});
+
 		it("deletes mcq for authenticated user", async () => {
 			const response = await DELETE(
 				new NextRequest("http://localhost/api/mcqs/mcq-1", { method: "DELETE" }),

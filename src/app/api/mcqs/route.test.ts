@@ -79,6 +79,7 @@ describe("/api/mcqs", () => {
 					},
 				],
 			});
+			expect(mcqService.listMcqsByUserId).toHaveBeenCalledWith("user-1");
 		});
 	});
 
@@ -96,7 +97,50 @@ describe("/api/mcqs", () => {
 			);
 
 			expect(response.status).toBe(201);
-			expect(await response.json()).toHaveProperty("mcq");
+			expect(await response.json()).toEqual({
+				mcq: {
+					id: "mcq-1",
+					name: "Photosynthesis",
+					question: "What gas do plants absorb?",
+					createdAt: "2026-01-01 00:00:00",
+					updatedAt: "2026-01-01 00:00:00",
+					choices: [
+						{
+							id: "choice-1",
+							choiceText: "Carbon dioxide",
+							sortOrder: 0,
+							isCorrect: true,
+						},
+						{
+							id: "choice-2",
+							choiceText: "Oxygen",
+							sortOrder: 1,
+							isCorrect: false,
+						},
+					],
+				},
+			});
+			expect(mcqService.createMcq).toHaveBeenCalledWith("user-1", {
+				name: "Photosynthesis",
+				question: "What gas do plants absorb?",
+				choices: [
+					{ choiceText: "Carbon dioxide", isCorrect: true },
+					{ choiceText: "Oxygen", isCorrect: false },
+				],
+			});
+		});
+
+		it("returns 400 for invalid JSON body", async () => {
+			const response = await POST(
+				new NextRequest("http://localhost/api/mcqs", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: "{",
+				}),
+			);
+
+			expect(response.status).toBe(400);
+			expect(await response.json()).toEqual({ error: "Invalid JSON body" });
 		});
 
 		it("returns 400 for invalid body", async () => {
